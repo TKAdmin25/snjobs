@@ -47,6 +47,14 @@ This project connects directly to the production database. To ensure a secure co
 The URL to manage the remote hosts is:
 `https://243.223.167.72.host.secureserver.net:2083/cpsess5076651262/frontend/jupiter/sql/managehost.html`
 
+### ⚙️ Prisma Client Generation
+
+Once your database connection is configured, you must generate the Prisma Client for your local environment. This is the auto-generated query builder that your application will use to interact with the database.
+
+```bash
+bunx prisma generate
+```
+
 ---
 
 ## 📊 Prisma & Database Schema
