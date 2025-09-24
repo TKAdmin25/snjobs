@@ -1,0 +1,15 @@
+---
+import SectionForgotForm from "@/components/section/page/forgot/SectionForgotForm.astro";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+---
+
+<Layout
+  title={meta.forgot.title}
+  description={meta.forgot.description}
+  keywords={meta.forgot.keywords}
+>
+  <main>
+    <SectionForgotForm />
+  </main>
+</Layout>

@@ -1,0 +1,29 @@
+---
+import { CardStep } from "@/components/card/CardStep";
+import { PrimaryLink } from "@/components/interactive/PrimaryLink";
+import { WrapperContentDelimiter } from "@/components/wrapper/WrapperContentDelimiter";
+import { HOW_IT_WORKS_STEPS } from "@/lib/const/UIContent";
+---
+
+<WrapperContentDelimiter ariaLabelledBy="how-it-works" className="py-10">
+  <h2
+    id="how-it-works"
+    class="text-center text-3xl lg:text-5xl mb-6 font-light"
+  >
+    How it works
+  </h2>
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6 mb-6">
+    {
+      HOW_IT_WORKS_STEPS.map((step, index) => (
+        <CardStep
+          number={index + 1}
+          title={step.title}
+          description={step.description}
+        />
+      ))
+    }
+  </div>
+  <PrimaryLink className="font-semibold block mx-auto w-max"
+    >Sign Up Now!</PrimaryLink
+  >
+</WrapperContentDelimiter>

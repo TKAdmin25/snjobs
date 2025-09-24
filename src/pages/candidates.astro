@@ -1,0 +1,17 @@
+---
+import SectionHeader from "@/components/section/page/candidates/SectionHeader.astro";
+import SectionHowItWorks from "@/components/section/page/candidates/SectionHowItWorks.astro";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+---
+
+<Layout
+  title={meta.candidates.title}
+  description={meta.candidates.description}
+  keywords={meta.candidates.keywords}
+>
+  <SectionHeader />
+  <main>
+    <SectionHowItWorks />
+  </main>
+</Layout>

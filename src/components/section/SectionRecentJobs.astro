@@ -1,0 +1,22 @@
+---
+import prisma from "@/config/prisma";
+import { WrapperContentDelimiter } from "../wrapper/WrapperContentDelimiter";
+import { CardJob } from "../card/CardJob/CardJob";
+
+const jobs = await prisma.jobs.findMany({
+  where: {
+    active: true
+  },
+  orderBy: { posted_on: "desc" },
+  take: 9
+});
+---
+
+<WrapperContentDelimiter ariaLabelledBy="recent-jobs-title" className="py-10">
+  <h2 id="recent-jobs-title" class="text-3xl lg:text-[2rem] mb-6">
+    Recently added ServiceNow Jobs
+  </h2>
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5">
+    {jobs.map((job) => <CardJob job={job} />)}
+  </div>
+</WrapperContentDelimiter>

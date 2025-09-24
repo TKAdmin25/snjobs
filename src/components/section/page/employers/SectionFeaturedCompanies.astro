@@ -1,0 +1,27 @@
+---
+import prisma from "@/config/prisma";
+import { CardCompany } from "@/components/card/CardCompany";
+import { WrapperContentDelimiter } from "@/components/wrapper/WrapperContentDelimiter";
+
+const companies = await prisma.companies.findMany({
+  where: {
+    jobs: {
+      some: {
+        active: true
+      }
+    }
+  },
+  orderBy: {
+    name: "asc"
+  }
+});
+---
+
+<WrapperContentDelimiter ariaLabelledBy="featured-companies" className="py-10">
+  <h2 id="featured-companies" class="text-3xl lg:text-[2rem] mb-6">
+    Featured Companies
+  </h2>
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5">
+    {companies.map((company) => <CardCompany company={company} />)}
+  </div>
+</WrapperContentDelimiter>

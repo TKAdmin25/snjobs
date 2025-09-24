@@ -1,0 +1,80 @@
+---
+import { IconMenu } from "../icon/IconMenu";
+import { PrimaryLink } from "../interactive/PrimaryLink";
+import { WrapperContentDelimiter } from "../wrapper/WrapperContentDelimiter";
+
+const currentPath = Astro.url.pathname;
+
+const LINKS = [
+  { href: "/jobs", label: "Jobs", liClass: "" },
+  { href: "/candidates", label: "Candidates", liClass: "" },
+  { href: "/employers", label: "Employers", liClass: "" },
+  { href: "/post-job", label: "Post a Job", liClass: "lg:hidden" },
+  { href: "/login", label: "Login", liClass: "lg:hidden" },
+  { href: "/register", label: "Register", liClass: "lg:hidden" }
+];
+---
+
+<style>
+  @media (max-width: 1024px) {
+    .closed {
+      display: none;
+    }
+  }
+</style>
+
+<WrapperContentDelimiter
+  as="nav"
+  className="flex items-center justify-between gap-4 text-white relative"
+  fullWidthContainerClassName="bg-primary-darker sticky z-100 top-0 py-6 lg:py-0"
+>
+  <div class="flex items-center gap-8">
+    <a href="/">
+      <img
+        class="w-[180px]"
+        src="/snjobs-logo.webp"
+        alt="snjobs.com logo - find your next job"
+      />
+    </a>
+    <ul
+      class="flex flex-col lg:flex-row lg:items-center absolute top-full left-0 w-full bg-primary-darker lg:static lg:bg-transparent lg:w-max [&>li:last-child]:mb-6 lg:[&>li:last-child]:mb-0 closed"
+      id="menu"
+    >
+      {
+        LINKS.map((link) => {
+          const isActive = currentPath === link.href;
+          return (
+            <li class={link.liClass}>
+              <a
+                href={link.href}
+                aria-current={isActive ? "page" : undefined}
+                class={`px-2 md:px-4 block py-2 lg:py-6 ${isActive ? "border-b-4 border-b-primary-light" : ""}`}
+              >
+                {link.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+  <button
+    class="p-2 border border-solid cursor-pointer border-muted rounded-lg lg:hidden [&>*]:pointer-events-none"
+    id="menu-button"
+  >
+    <IconMenu />
+  </button>
+  <div class="hidden lg:block">
+    <PrimaryLink>Post a Job</PrimaryLink>
+    <a class="px-4" href="/login">Login</a>
+    <a class="px-4" href="/register">Register</a>
+  </div>
+</WrapperContentDelimiter>
+
+<script>
+  const menu = document.getElementById("menu");
+  const menuButton = document.getElementById("menu-button");
+  menuButton?.addEventListener("click", () => {
+    menu?.classList.toggle("closed");
+  });
+</script>

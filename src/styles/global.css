@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #73bcb6;
+  --color-primary-light: #73bcb6;
+  --color-primary-lighter: #d1e5e5;
+  --color-primary-dark: #27857d;
+  --color-primary-darker: #3a3f51;
+
+  --color-muted: #6c757d;
+}
+
+.bg-candidates {
+  background: url("/candidates.webp") repeat-x;
+  animation: slide-bg 60s linear infinite;
+}
+
+@keyframes slide-bg {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -2060px 0;
+  }
+}

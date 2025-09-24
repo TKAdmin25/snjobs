@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model companies {
+  id             String  @id @db.VarChar(50)
+  name           String  @db.VarChar(500)
+  slug           String? @unique(map: "slug") @db.VarChar(250)
+  thumbnail      String? @db.VarChar(500)
+  description    String? @db.VarChar(2000)
+  content        String? @db.Text
+  website        String? @db.VarChar(250)
+  location       String? @db.VarChar(250)
+  employees      String? @db.VarChar(100)
+  sector         String? @db.VarChar(100)
+  industry       String? @db.VarChar(100)
+  sub_industry   String? @db.VarChar(100)
+  industry_group String? @db.VarChar(100)
+  tags           String? @db.VarChar(250)
+  twitter        String? @db.VarChar(100)
+  facebook       String? @db.VarChar(100)
+  linkedin       String? @db.VarChar(100)
+
+  jobs jobs[]
+}
+
+model geocode {
+  id         String   @id @db.VarChar(50)
+  location   String   @unique(map: "location") @db.VarChar(250)
+  label      String   @db.VarChar(250)
+  lat        String   @db.VarChar(50)
+  lon        String   @db.VarChar(50)
+  city       String?  @db.VarChar(100)
+  state      String?  @db.VarChar(100)
+  country    String   @db.VarChar(100)
+  created_on DateTime @default(now()) @db.DateTime(0)
+}
+
+model jobs {
+  id             String    @id @db.VarChar(50)
+  job_id         String?   @db.VarChar(5000)
+  job_id_sha1    String?   @unique(map: "job_id_sha1") @db.VarChar(40)
+  job_id_alt     String?   @unique(map: "job_id_alt") @db.VarChar(250)
+  job_user       String?   @db.VarChar(50)
+  slug           String?   @unique(map: "slug") @db.VarChar(150)
+  title          String    @db.VarChar(1000)
+  company        String    @db.VarChar(250)
+  company_slug   String?   @db.VarChar(250)
+  location       String    @db.VarChar(250)
+  via            String    @db.VarChar(250)
+  description    String    @db.Text
+  thumbnail      String?   @db.VarChar(250)
+  schedule_type  String?   @db.VarChar(250)
+  salary         String?   @db.VarChar(250)
+  work_from_home Boolean?
+  posted_on      DateTime? @db.DateTime(0)
+  apply_options  String?   @db.VarChar(2000)
+  ratings        String?   @db.VarChar(2000)
+  salaries       String?   @db.VarChar(2000)
+  geo_lat        String?   @db.VarChar(50)
+  geo_lon        String?   @db.VarChar(50)
+  geo_locality   String?   @db.VarChar(50)
+  geo_region     String?   @db.VarChar(50)
+  geo_country    String?   @db.VarChar(50)
+  active         Boolean?
+  error          Boolean?
+  remove         Boolean?
+  featured       Boolean?
+  created_on     DateTime  @default(now()) @db.DateTime(0)
+  updated_on     DateTime  @updatedAt @db.DateTime(0)
+  users          users?    @relation(fields: [job_user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "job_user")
+
+  company_relation companies? @relation(fields: [company_slug], references: [slug])
+
+
+  @@index([job_user], map: "job_user")
+}
+
+model log {
+  id         Int      @id @default(autoincrement())
+  type       String   @db.VarChar(50)
+  code       String   @db.VarChar(50)
+  message    String   @db.VarChar(250)
+  log        String   @db.VarChar(512)
+  uri        String   @db.VarChar(250)
+  host       String   @db.VarChar(250)
+  ip         String   @db.VarChar(50)
+  created_on DateTime @default(now()) @db.DateTime(0)
+}
+
+model messages {
+  id                              String   @id @db.VarChar(50)
+  sender                          String   @db.VarChar(50)
+  recipient                       String   @db.VarChar(50)
+  company                         String   @db.VarChar(50)
+  role                            String   @db.VarChar(50)
+  message                         String   @db.VarChar(5000)
+  created_on                      DateTime @default(now()) @db.DateTime(0)
+  users_messages_recipientTousers users    @relation("messages_recipientTousers", fields: [recipient], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "recipient")
+  users_messages_senderTousers    users    @relation("messages_senderTousers", fields: [sender], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sender")
+
+  @@index([recipient], map: "recipient")
+  @@index([sender], map: "sender")
+}
+
+model profiles {
+  id           String   @id @db.VarChar(50)
+  user_id      String   @db.VarChar(50)
+  name         String   @db.VarChar(250)
+  title        String?  @db.VarChar(250)
+  location     String   @db.VarChar(250)
+  geo_lat      String?  @db.VarChar(50)
+  geo_lon      String?  @db.VarChar(50)
+  geo_locality String?  @db.VarChar(50)
+  geo_region   String?  @db.VarChar(50)
+  geo_country  String?  @db.VarChar(50)
+  nextgen      Boolean
+  experience   Boolean
+  role         String   @db.VarChar(50)
+  salary       String   @db.VarChar(50)
+  slug         String   @db.VarChar(150)
+  summary      String?  @db.VarChar(2048)
+  products     String?  @db.VarChar(2048)
+  certs        String?  @db.VarChar(2048)
+  work         String?  @db.VarChar(2048)
+  education    String?  @db.VarChar(2048)
+  permanent    Boolean
+  contract     Boolean
+  remote       Boolean
+  hybrid       Boolean
+  onsite       Boolean
+  linkedin     String?  @db.VarChar(150)
+  twitter      String?  @db.VarChar(150)
+  github       String?  @db.VarChar(150)
+  youtube      String?  @db.VarChar(150)
+  nowlearning  String?  @db.VarChar(150)
+  publish      Boolean
+  active       Boolean  @default(true)
+  created_on   DateTime @default(now()) @db.DateTime(0)
+  updated_on   DateTime @default(now()) @db.DateTime(0)
+  users        users    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "user_id")
+
+  @@index([user_id], map: "user_id")
+  @@fulltext([name], map: "name")
+  @@fulltext([name, title], map: "search")
+  @@fulltext([title], map: "title")
+}
+
+model queue {
+  id              Int      @id @default(autoincrement())
+  process         String   @db.VarChar(250)
+  query           String   @db.VarChar(250)
+  next_page_token String?  @db.VarChar(2000)
+  start           Int
+  complete        Boolean
+  inserts         Int
+  datetime        DateTime @default(now()) @db.DateTime(0)
+}
+
+model subscribers {
+  id           String   @id @db.VarChar(50)
+  name         String   @db.VarChar(250)
+  email        String   @unique(map: "Unique Email") @db.VarChar(250)
+  location     String?  @db.VarChar(250)
+  geo_lat      String?  @db.VarChar(250)
+  geo_lon      String?  @db.VarChar(250)
+  geo_locality String?  @db.VarChar(250)
+  geo_region   String?  @db.VarChar(250)
+  geo_country  String?  @db.VarChar(250)
+  send         Boolean  @default(false)
+  unsubscribed Boolean  @default(false)
+  created_on   DateTime @default(now()) @db.DateTime(0)
+}
+
+model users {
+  id                                 String     @id @db.VarChar(50)
+  firstname                          String     @db.VarChar(250)
+  lastname                           String     @db.VarChar(250)
+  email                              String     @unique(map: "email") @db.VarChar(250)
+  company                            String?    @db.VarChar(250)
+  password_hash                      String     @db.VarChar(250)
+  status                             Int        @default(0)
+  avatar                             String?    @db.VarChar(250)
+  type                               Int        @default(0)
+  forgot                             String?    @db.VarChar(250)
+  active                             Boolean    @default(false)
+  last_login                         DateTime?  @db.DateTime(0)
+  created_on                         DateTime   @default(now()) @db.DateTime(0)
+  updated_on                         DateTime   @default(now()) @db.DateTime(0)
+  jobs                               jobs[]
+  messages_messages_recipientTousers messages[] @relation("messages_recipientTousers")
+  messages_messages_senderTousers    messages[] @relation("messages_senderTousers")
+  profiles                           profiles[]
+}

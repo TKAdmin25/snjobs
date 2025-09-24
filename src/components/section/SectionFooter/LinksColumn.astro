@@ -1,0 +1,22 @@
+---
+interface Props {
+  title: string;
+  links: { href: string; label: string }[];
+}
+const { title, links } = Astro.props;
+---
+
+<div>
+  <h4 class="text-gray-400 font-semibold uppercase text-lg text-nowrap">
+    {title}
+  </h4>
+  <ul class="text-primary-light min-w-[160px]">
+    {
+      links.map((link) => (
+        <li>
+          <a href={link.href}>{link.label}</a>
+        </li>
+      ))
+    }
+  </ul>
+</div>

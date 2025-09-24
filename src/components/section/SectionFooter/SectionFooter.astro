@@ -1,0 +1,36 @@
+---
+import { WrapperContentDelimiter } from "@/components/wrapper/WrapperContentDelimiter";
+import LinksColumn from "./LinksColumn.astro";
+---
+
+<WrapperContentDelimiter
+  as="footer"
+  className="text-white py-8 flex flex-col md:flex-row items-start justify-between gap-8"
+  fullWidthContainerClassName="bg-primary-darker"
+>
+  <div>
+    <img
+      class="w-[180px] mb-4"
+      src="/snjobs-logo.webp"
+      alt="snjobs.com logo - find your next job"
+    />
+    <p class="text-gray-400 text-wrap">
+      An independent resource for finding ServiceNow candidates and jobs.
+    </p>
+  </div>
+  <LinksColumn
+    title="Pages"
+    links={[
+      { href: "/jobs", label: "Jobs" },
+      { href: "/employers", label: "Employers" },
+      { href: "/locations", label: "Locations" },
+      { href: "/post-job", label: "Post a Job" },
+      { href: "/contact", label: "Contact Us" },
+      { href: "/privacy", label: "Privacy Policy" }
+    ]}
+  />
+  <LinksColumn
+    title="External Links"
+    links={[{ href: "https://www.servicenow.com", label: "servicenow.com" }]}
+  />
+</WrapperContentDelimiter>

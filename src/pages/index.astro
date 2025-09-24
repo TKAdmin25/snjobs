@@ -1,11 +1,19 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import SectionHeader from "@/components/section/page/home/SectionHeader.astro";
+import SectionCallToAction from "@/components/section/page/home/SectionCallToAction.astro";
+import SectionRecentJobs from "@/components/section/SectionRecentJobs.astro";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title={meta.index.title}
+  description={meta.index.description}
+  keywords={meta.index.keywords}
+>
+  <SectionHeader />
+  <main>
+    <SectionCallToAction />
+    <SectionRecentJobs />
+  </main>
 </Layout>

@@ -1,0 +1,194 @@
+---
+import SectionFilters from "@/components/section/page/jobs/SectionFilters.astro";
+import SectionJobs from "@/components/section/page/jobs/SectionJobs/SectionJobs.astro";
+import prisma from "@/config/prisma";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+import { JOB_SCHEDULE_TYPES } from "@/lib/const/nonUIContent";
+import ServiceGeocode from "@/lib/service/ServiceGeocode";
+import { Prisma, type jobs } from "@prisma/client";
+
+export const prerender = false;
+
+const url = Astro.url;
+const parsedSearchParams = {
+  keywords: url.searchParams.get("keywords") || "",
+  location: url.searchParams.get("location") || "",
+  page: parseInt(url.searchParams.get("page") || "1", 10),
+  distance: parseInt(url.searchParams.get("distance") || "1000", 10),
+  scheduleType: (() => {
+    let temp = url.searchParams.get("scheduleType");
+    return temp
+      ? JOB_SCHEDULE_TYPES[temp as keyof typeof JOB_SCHEDULE_TYPES]
+      : null;
+  })(),
+  postedWithinDays: parseInt(
+    url.searchParams.get("postedWithinDays") || "0",
+    10
+  ),
+  isRemote: url.searchParams.get("isRemote") === "true"
+};
+
+const JOBS_PER_PAGE = 60;
+const OFFSET = (parsedSearchParams.page - 1) * JOBS_PER_PAGE;
+
+let coords: [number | null, number | null] = [null, null];
+let location = parsedSearchParams.location;
+
+const getCoordsByLocation = async () => {
+  const geoData = await ServiceGeocode.getCoordinates(
+    parsedSearchParams.location
+  );
+  if (!geoData) return;
+  coords = [parseFloat(geoData.lat), parseFloat(geoData.lon)];
+  location = geoData.label;
+};
+
+if (location) await getCoordsByLocation();
+
+const queryClauses: {
+  select: Prisma.Sql[];
+  where: Prisma.Sql[];
+  having: Prisma.Sql;
+  orderBy: Prisma.Sql[];
+} = {
+  select: [Prisma.sql`j.*`],
+  where: [Prisma.sql`j.active = true`],
+  having: Prisma.sql``,
+  orderBy: []
+};
+
+/* 
+===========================================================
+funciones para agregar filtros a la consulta SQL
+===========================================================
+*/
+const addLocationFilterToQuery = () => {
+  const [lat, lon] = coords;
+  queryClauses.select.push(
+    Prisma.sql`( 3959 * acos( cos( radians(${lat}) ) * cos( radians( j.geo_lat ) ) * cos( radians( j.geo_lon ) - radians(${lon}) ) + sin( radians(${lat}) ) * sin( radians( j.geo_lat ) ) ) ) AS distance`
+  );
+  queryClauses.having = Prisma.sql`HAVING distance < ${parsedSearchParams.distance} OR j.location = 'Anywhere'`;
+  queryClauses.orderBy.push(
+    Prisma.sql`ifnull(distance, ${parsedSearchParams.distance}) ASC`
+  );
+};
+const addKeywordsFilterToQuery = () => {
+  queryClauses.select.push(
+    Prisma.sql`MATCH(j.title, j.company, j.description) AGAINST(${parsedSearchParams.keywords}) AS score`
+  );
+  queryClauses.where.push(
+    Prisma.sql`MATCH(j.title, j.company, j.description) AGAINST(${parsedSearchParams.keywords})`
+  );
+  queryClauses.orderBy.push(Prisma.sql`score DESC`);
+};
+const addScheduleFilterToQuery = () => {
+  queryClauses.where.push(
+    Prisma.sql`j.schedule_type = ${parsedSearchParams.scheduleType}`
+  );
+};
+const addRemoteOnlyFilterToQuery = () => {
+  queryClauses.where.push(Prisma.sql`j.work_from_home = true`);
+};
+const addPostedWithinDaysFilterToQuery = () => {
+  const date = new Date();
+  date.setDate(date.getDate() - parsedSearchParams.postedWithinDays);
+  const postedAfterDate = date.toISOString().slice(0, 19).replace("T", " ");
+  queryClauses.where.push(Prisma.sql`j.posted_on >= ${postedAfterDate}`);
+};
+
+/* 
+===========================================================
+condicionales que determinan que filtros deben ser agregados en base a los parametros de la URL
+===========================================================
+*/
+if (coords.every((c) => c !== null)) addLocationFilterToQuery();
+if (parsedSearchParams.keywords) addKeywordsFilterToQuery();
+if (parsedSearchParams.scheduleType) addScheduleFilterToQuery();
+if (parsedSearchParams.isRemote) addRemoteOnlyFilterToQuery();
+if (parsedSearchParams.postedWithinDays > 0) addPostedWithinDaysFilterToQuery();
+
+queryClauses.orderBy.push(Prisma.sql`j.posted_on DESC`);
+
+/* 
+===========================================================
+logica de construccion de consulta con las clausulas agregadas previamente
+===========================================================
+*/
+const queryConstructor = () => {
+  const query = {
+    select: Prisma.sql`SELECT ${Prisma.join(queryClauses.select, ", ")}`,
+    from: Prisma.sql`FROM jobs j`,
+    where:
+      queryClauses.where.length > 0
+        ? Prisma.sql`WHERE ${Prisma.join(queryClauses.where, " AND ")}`
+        : Prisma.sql``,
+    orderBy:
+      queryClauses.orderBy.length > 0
+        ? Prisma.sql`ORDER BY ${Prisma.join(queryClauses.orderBy, ", ")}`
+        : Prisma.sql``
+  };
+  return {
+    ...query,
+    count: Prisma.sql`SELECT COUNT(*) as count FROM (${query.select} ${query.from} ${query.where} ${queryClauses.having} LIMIT 600) as count_alias`
+  };
+};
+const { select, from, where, orderBy, count } = queryConstructor();
+
+/* 
+===========================================================
+llamadas a la base de datos
+===========================================================
+*/
+const performCount = async () => {
+  const res: [{ count: bigint }] = await prisma.$queryRaw(count);
+  const totalItems = Number(res[0].count);
+  return {
+    totalItems,
+    totalPages: Math.ceil(totalItems / JOBS_PER_PAGE)
+  };
+};
+const performSelect = async (totalItems: number): Promise<jobs[]> => {
+  if (totalItems > 0) {
+    const resultsQuery = Prisma.sql`${select} ${from} ${where} ${queryClauses.having} ${orderBy} LIMIT ${JOBS_PER_PAGE} OFFSET ${OFFSET}`;
+    return await prisma.$queryRaw(resultsQuery);
+  }
+  return await prisma.jobs.findMany({
+    where: { active: true },
+    orderBy: { posted_on: "desc" },
+    take: 20
+  });
+};
+
+const { totalItems, totalPages } = await performCount();
+const jobs = await performSelect(totalItems);
+
+const pageTitle = location ? `Jobs near ${location}` : "Find ServiceNow Jobs";
+
+const shouldShowPagination = totalItems > 0 && totalPages > 1;
+---
+
+<Layout
+  title={meta.jobs.title}
+  description={meta.jobs.description}
+  keywords={meta.jobs.keywords}
+>
+  <main>
+    <SectionFilters
+      keywords={parsedSearchParams.keywords}
+      location={parsedSearchParams.location}
+      scheduleType={parsedSearchParams.scheduleType}
+      postedWithinDays={parsedSearchParams.postedWithinDays}
+      isRemote={parsedSearchParams.isRemote}
+      distance={parsedSearchParams.distance}
+    />
+    <SectionJobs
+      title={pageTitle}
+      jobs={jobs}
+      hasResults={totalItems > 0}
+      shouldShowPagination={shouldShowPagination}
+      currentPage={parsedSearchParams.page}
+      totalPages={totalPages}
+    />
+  </main>
+</Layout>

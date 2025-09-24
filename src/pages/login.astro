@@ -1,0 +1,15 @@
+---
+import SectionLoginForm from "@/components/section/page/login/SectionLoginForm.astro";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+---
+
+<Layout
+  title={meta.login.title}
+  description={meta.login.description}
+  keywords={meta.login.keywords}
+>
+  <main>
+    <SectionLoginForm />
+  </main>
+</Layout>

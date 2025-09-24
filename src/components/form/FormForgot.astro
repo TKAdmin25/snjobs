@@ -1,0 +1,16 @@
+---
+import { Input } from "../interactive/Input";
+import { PrimaryButton } from "../interactive/PrimaryButton";
+import WrapperAuthForms from "../wrapper/WrapperAuthForms.astro";
+---
+
+<WrapperAuthForms title="Forgot Password">
+  <form class="grid gap-4" action="">
+    <Input label="E-Mail Address" type="email" />
+    <PrimaryButton className="max-w-max ml-auto">Send Link</PrimaryButton>
+
+    <p class="text-center">
+      Remember your password? <a class="underline" href="/login">Login</a>
+    </p>
+  </form>
+</WrapperAuthForms>

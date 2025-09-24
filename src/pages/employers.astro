@@ -1,0 +1,15 @@
+---
+import SectionFeaturedCompanies from "@/components/section/page/employers/SectionFeaturedCompanies.astro";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+---
+
+<Layout
+  title={meta.employers.title}
+  description={meta.employers.description}
+  keywords={meta.employers.keywords}
+>
+  <main>
+    <SectionFeaturedCompanies />
+  </main>
+</Layout>

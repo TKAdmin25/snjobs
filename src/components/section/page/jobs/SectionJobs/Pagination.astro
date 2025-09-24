@@ -1,0 +1,65 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+}
+
+const { currentPage, totalPages } = Astro.props;
+const { searchParams } = Astro.url;
+
+function getPageUrl(page: number) {
+  const params = new URLSearchParams(searchParams);
+  params.set("page", page.toString());
+  return `/jobs?${params.toString()}`;
+}
+
+const pagesToShow = [];
+const startPage = Math.max(1, currentPage - 2);
+const endPage = Math.min(totalPages, currentPage + 2);
+
+for (let i = startPage; i <= endPage; i++) {
+  pagesToShow.push(i);
+}
+---
+
+<nav aria-label="Page navigation">
+  <ul
+    class="flex items-center border border-gray-300 text-primary-dark my-8 rounded-sm max-w-max"
+  >
+    {
+      currentPage > 1 && (
+        <li>
+          <a
+            class="px-2.5 py-1.5 block border-r border-solid border-gray-300"
+            href={getPageUrl(currentPage - 1)}
+          >
+            Previous
+          </a>
+        </li>
+      )
+    }
+
+    {
+      pagesToShow.map((page, index) => (
+        <li>
+          <a
+            class={`px-2.5 py-1.5 block ${page === currentPage ? "bg-primary text-white" : ""} ${index < pagesToShow.length - 1 && "border-r border-gray-300"}`}
+            href={getPageUrl(page)}
+          >
+            {page}
+          </a>
+        </li>
+      ))
+    }
+
+    {
+      currentPage < totalPages && (
+        <li class="border-l border-solid border-gray-300">
+          <a class="px-2.5 py-1.5 block" href={getPageUrl(currentPage + 1)}>
+            Next
+          </a>
+        </li>
+      )
+    }
+  </ul>
+</nav>

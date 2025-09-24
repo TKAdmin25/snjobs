@@ -1,0 +1,72 @@
+---
+export const prerender = false;
+
+import prisma from "@/config/prisma";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+import MarkdownIt from "markdown-it";
+
+const { id, slug } = Astro.params;
+
+const job = await prisma.jobs.findUnique({
+  where: { id }
+});
+
+if (!job) {
+  return Astro.redirect("/404");
+}
+
+if (job.slug !== slug) {
+  return Astro.redirect(`/jobs/${job.id}/${job.slug}`, 301);
+}
+
+const md = new MarkdownIt();
+const descriptionHTML = md.render(
+  job.description.replace(/• /g, "- ").replace(/•/g, "- ")
+);
+---
+
+<Layout
+  title={meta.job.title(job.title, job.company || "Unknown Company")}
+  description={meta.job.description(
+    job.title,
+    job.company || "Unknown Company"
+  )}
+  keywords={meta.job.keywords(job.title, job.company || "Unknown Company")}
+>
+  <main class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-2">{job.title}</h1>
+    <h2 class="text-xl text-gray-600 mb-4">
+      {job.company} — {job.location}
+    </h2>
+
+    <article class="prose max-w-none" set:html={descriptionHTML} />
+
+    {
+      job.apply_options && (
+        <section class="mt-6">
+          <h3 class="text-lg font-semibold">Apply Options</h3>
+          <pre>{JSON.stringify(job.apply_options, null, 2)}</pre>
+        </section>
+      )
+    }
+
+    {
+      job.salaries && (
+        <section class="mt-6">
+          <h3 class="text-lg font-semibold">Salaries</h3>
+          <pre>{JSON.stringify(job.salaries, null, 2)}</pre>
+        </section>
+      )
+    }
+
+    {
+      job.ratings && (
+        <section class="mt-6">
+          <h3 class="text-lg font-semibold">Ratings</h3>
+          <pre>{JSON.stringify(job.ratings, null, 2)}</pre>
+        </section>
+      )
+    }
+  </main>
+</Layout>

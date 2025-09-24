@@ -1,0 +1,23 @@
+---
+import { CardCallToAction } from "@/components/card/CardCallToAction";
+import { WrapperContentDelimiter } from "@/components/wrapper/WrapperContentDelimiter";
+import { CALLS_TO_ACTION } from "@/lib/const/UIContent";
+---
+
+<WrapperContentDelimiter
+  className="grid lg:grid-cols-2 gap-5 py-10"
+  fullWidthContainerClassName="border-b border-solid border-black/15"
+>
+  {
+    CALLS_TO_ACTION.map((cta) => (
+      <CardCallToAction
+        tag={cta.tag.label}
+        title={cta.title}
+        description={cta.description}
+        link={cta.link}
+      >
+        <cta.tag.icon.element {...cta.tag.icon.props} />
+      </CardCallToAction>
+    ))
+  }
+</WrapperContentDelimiter>

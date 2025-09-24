@@ -1,0 +1,110 @@
+---
+import { IconMapPin } from "@/components/icon/IconMapPin";
+import { IconSearch } from "@/components/icon/IconSearch";
+import { Input } from "@/components/interactive/Input";
+import { PrimaryButton } from "@/components/interactive/PrimaryButton";
+import { Select } from "@/components/interactive/Select";
+import { WrapperContentDelimiter } from "@/components/wrapper/WrapperContentDelimiter";
+
+interface Props {
+  keywords?: string;
+  location?: string;
+  distance?: number;
+  scheduleType: string | null;
+  postedWithinDays?: number;
+  isRemote?: boolean;
+}
+
+const {
+  keywords,
+  location,
+  distance,
+  scheduleType,
+  postedWithinDays,
+  isRemote
+} = Astro.props;
+---
+
+<WrapperContentDelimiter
+  className="py-4"
+  fullWidthContainerClassName="border-b border-solid border-black/15 lg:sticky top-[76px] bg-white z-100"
+>
+  <form
+    class="flex flex-col lg:flex-row lg:items-stretch gap-2"
+    method="GET"
+    action="/jobs"
+  >
+    <div class="flex flex-col md:flex-row items-stretch gap-2">
+      <Input
+        name="keywords"
+        defaultValue={keywords}
+        placeholder="Enter job title or keywords"
+      >
+        <IconSearch strokeWidth={2} size={16} /></Input
+      >
+      <Input
+        name="location"
+        defaultValue={location}
+        placeholder="Enter location"
+      >
+        <IconMapPin strokeWidth={2} size={16} /></Input
+      >
+      <Select
+        label="Distance"
+        name="distance"
+        id="distance"
+        disabled={!location}
+        defaultValue={distance?.toString() || "1000"}
+        options={[
+          { label: "Within 5 miles", value: "5" },
+          { label: "Within 10 miles", value: "10" },
+          { label: "Within 25 miles", value: "25" },
+          { label: "Within 50 miles", value: "50" },
+          { label: "Within 100 miles", value: "100" },
+          { label: "Within 250 miles", value: "250" },
+          { label: "Anywhere", value: "1000" }
+        ]}
+      />
+      <Select
+        label="Schedule Type"
+        name="scheduleType"
+        id="scheduleType"
+        defaultValue={scheduleType || ""}
+        options={[
+          { label: "All", value: "" },
+          { label: "Full-time", value: "full-time" },
+          { label: "Part-time", value: "part-time" },
+          { label: "Contractor", value: "contractor" },
+          { label: "Internship", value: "internship" }
+        ]}
+      />
+      <Select
+        label="Date Posted"
+        name="postedWithinDays"
+        id="postedWithinDays"
+        defaultValue={postedWithinDays?.toString() || "0"}
+        options={[
+          { label: "Anytime", value: "0" },
+          { label: "Last 24 hours", value: "1" },
+          { label: "Last 3 days", value: "3" },
+          { label: "Last 7 days", value: "7" },
+          { label: "Last 30 days", value: "30" }
+        ]}
+      />
+    </div>
+    <div class="flex items-center flex-nowrap gap-1">
+      <input
+        class=""
+        type="checkbox"
+        name="isRemote"
+        value="true"
+        id="isRemoteCheck"
+        checked={isRemote}
+      />
+      <label class="text-nowrap" for="isRemoteCheck">Remote only</label>
+    </div>
+    <PrimaryButton className="text-nowrap" type="submit"
+      >Find Jobs</PrimaryButton
+    >
+  </form>
+</WrapperContentDelimiter>

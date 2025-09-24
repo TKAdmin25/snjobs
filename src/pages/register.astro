@@ -1,0 +1,15 @@
+---
+import SectionRegisterForm from "@/components/section/page/register/SectionRegisterForm.astro";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+---
+
+<Layout
+  title={meta.register.title}
+  description={meta.register.description}
+  keywords={meta.register.keywords}
+>
+  <main>
+    <SectionRegisterForm />
+  </main>
+</Layout>

@@ -1,0 +1,22 @@
+---
+import { Input } from "../interactive/Input";
+import { PrimaryButton } from "../interactive/PrimaryButton";
+import WrapperAuthForms from "../wrapper/WrapperAuthForms.astro";
+---
+
+<WrapperAuthForms title="Register">
+  <form class="grid gap-4" action="">
+    <Input label="First Name" />
+    <Input label="Last Name" />
+    <Input label="E-Mail Address" type="email" />
+    <Input label="Password" type="password" />
+    <p class="text-sm text-gray-400">
+      By registering you agree with our terms and condition.
+    </p>
+    <PrimaryButton className="max-w-max ml-auto">Register</PrimaryButton>
+
+    <p class="text-center">
+      Already have an account? <a class="underline" href="/login">Login</a>
+    </p>
+  </form>
+</WrapperAuthForms>

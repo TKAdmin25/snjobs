@@ -1,0 +1,91 @@
+---
+export const prerender = false;
+
+import { CardJob } from "@/components/card/CardJob/CardJob";
+import { WrapperContentDelimiter } from "@/components/wrapper/WrapperContentDelimiter";
+import prisma from "@/config/prisma";
+import Layout from "@/layouts/Layout.astro";
+import { meta } from "@/lib/const/meta";
+
+const { slug } = Astro.params;
+
+const company = await prisma.companies.findUnique({
+  where: { slug }
+});
+
+if (!company) {
+  throw Astro.redirect("/404");
+}
+
+const thumbnail = company.thumbnail
+  ? `/uploads/${company.thumbnail}`
+  : "/company-default-logo.webp";
+
+const jobs = await prisma.jobs.findMany({
+  where: {
+    company_slug: company.slug,
+    active: true
+  },
+  orderBy: {
+    posted_on: "desc"
+  }
+});
+---
+
+<Layout
+  title={meta.employer.title(company.name, jobs.length.toString())}
+  description={meta.employer.description(company.name, jobs.length.toString())}
+  keywords={meta.employer.keywords(company.name)}
+>
+  <main>
+    <WrapperContentDelimiter
+      as="header"
+      className="flex flex-col md:flex-row items-start space-x-4 mb-6"
+    >
+      <img
+        src={thumbnail}
+        alt={company.name}
+        class="md:w-32 md:h-32 object-cover"
+      />
+      <div>
+        <h1 class="text-4xl mb-3">{company.name}</h1>
+        <ul>
+          <li>
+            Location: <span class="font-semibold">{company.location}</span>
+          </li>
+          <li>Website: <span class="font-semibold">{company.website}</span></li>
+          <li>
+            Employees: <span class="font-semibold">{company.employees}</span>
+          </li>
+          <li>
+            Industry: <span class="font-semibold">
+              {company.sub_industry ? company.sub_industry : company.industry}
+            </span>
+          </li>
+          <li>
+            Tags: <span class="font-semibold">
+              {company.sub_industry ? company.sub_industry : company.industry}
+            </span>
+          </li>
+        </ul>
+        <p>{company.description}</p>
+      </div>
+    </WrapperContentDelimiter>
+    <WrapperContentDelimiter className="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">
+        Jobs at {company.name}
+      </h2>
+      {
+        jobs.length === 0 ? (
+          <p class="text-gray-600">No active job postings at this time.</p>
+        ) : (
+          <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
+            {jobs.map((job) => (
+              <CardJob job={job} />
+            ))}
+          </div>
+        )
+      }
+    </WrapperContentDelimiter>
+  </main>
+</Layout>

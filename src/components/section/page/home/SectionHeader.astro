@@ -1,0 +1,46 @@
+---
+import { IconMapPin } from "@/components/icon/IconMapPin";
+import { IconSearch } from "@/components/icon/IconSearch";
+import { Input } from "@/components/interactive/Input";
+import { PrimaryButton } from "@/components/interactive/PrimaryButton";
+import { WrapperContentDelimiter } from "@/components/wrapper/WrapperContentDelimiter";
+---
+
+<WrapperContentDelimiter
+  as="header"
+  className="grid md:grid-cols-2 gap-2"
+  fullWidthContainerClassName="bg-primary-lighter py-16 md:pb-0"
+>
+  <div class="flex flex-col justify-center">
+    <h1 class="text-4xl lg:text-5xl font-bold mb-4">
+      Find your next ServiceNow job!
+    </h1>
+    <p class="font-light text-gray-900 mb-10">
+      Quickly find ServiceNow jobs and careers from some of the top employers
+      around the world, hiring for ServiceNow administrators, architects,
+      developers, or managers.
+    </p>
+    <form method="GET" action="/jobs">
+      <div class="grid grid-cols-2 w-full gap-2 mb-2">
+        <Input
+          type="search"
+          name="keywords"
+          placeholder="Enter job title or keywords"
+        >
+          <IconSearch strokeWidth={2} size={16} />
+        </Input>
+        <Input name="location" placeholder="Enter location">
+          <IconMapPin strokeWidth={2} size={16} />
+        </Input>
+      </div>
+      <PrimaryButton>Find ServiceNow Jobs</PrimaryButton>
+    </form>
+  </div>
+  <div class="hidden md:grid place-items-center">
+    <img
+      class="max-w-[360px] lg:max-w-[440px]"
+      src="/snjobs-smile.webp"
+      alt="A young man with curly hair and glasses, wearing a purple shirt, smiles and raises his fist in triumph while holding a laptop."
+    />
+  </div>
+</WrapperContentDelimiter>
